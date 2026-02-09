@@ -1,0 +1,4 @@
+BEGIN
+  # Unicode just works  #
+  print (("· → ⇑", new line))
+END

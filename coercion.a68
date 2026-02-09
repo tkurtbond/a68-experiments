@@ -1,0 +1,5 @@
+BEGIN
+  # The following coerces the read INT to a REAL. #
+  REAL z = read int;
+  print (("z: ", z, new line))
+END

@@ -1,0 +1,11 @@
+BEGIN
+print (("max real:             ", max real,             new line));
+print (("min real:             ", min real,             new line));
+print (("long max real:        ", long max real,        new line));
+print (("long min real:        ", long min real,        new line));
+print (("long long max real:   ", long long max real,   new line));
+print (("long long min real:   ", long long min real,   new line));
+print (("small real:           ", small real,           new line));
+print (("long small real:      ", long small real,      new line));
+print (("long long small real: ", long long small real, new line));
+END
