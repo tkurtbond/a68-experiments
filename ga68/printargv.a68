@@ -1,0 +1,2 @@
+for i to argc
+do puts (argv (i) + "'n") od
