@@ -10,3 +10,5 @@
 hello
 printargv
 a.out
+
+**/build/**
