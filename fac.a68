@@ -1,0 +1,9 @@
+OP FAC = (INT k) INT: # A new monadic operator yielding k! #
+  IF k = 0
+  THEN 1
+  ELSE k * FAC (k - 1)
+  FI;
+
+WHILE INT n = read int; n >= 0
+DO print ((n, "! = ", FAC n, new line))
+OD

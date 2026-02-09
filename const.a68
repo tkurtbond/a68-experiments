@@ -1,0 +1,16 @@
+BEGIN
+  INT one thing = 1;
+  INT other thing;
+  other thing := 2;
+  print (("one thing:        ", one thing, new line));
+  other thing := 2;
+  print (("other thing:      ", other thing, new line));
+  COMMENT Adding the following line COMMENT
+  # one thing := 2; #
+  COMMENT would cause the following error:
+      9       one thing := 2;
+              1              
+      a68g: error: 1: INT secondary does not yield a name, in closed-clause starting at "BEGIN" in line 1.
+  COMMENT
+  print (("again, one thing: ", one thing, new line))
+END

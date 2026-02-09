@@ -1,0 +1,4 @@
+BEGIN
+  # The denotation for a LONG LONG INT must include "LONG LONG" before the digits #
+  print ((LONG LONG 3930061525912861057173624287137506221892737197425280369698987, new line))
+END
