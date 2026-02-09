@@ -1,0 +1,9 @@
+BEGIN
+  REAL r1;
+  r1 := 10.01;
+  print (("r1: ", r1, new line));
+  r1 := 20.02;
+  print (("new r1: ", r1, new line));
+  REAL r2 := 30.03;
+  print (("r2: ", r2, new line))
+END
