@@ -1,0 +1,258 @@
+# From: https://www.both.org/?p=11229 #
+#
+    Library-preludes
+    
+    /Nothing, however, prevents you from subjoining to this standard-prelude a
+     set of home made declarations. Of course you are free to declare such new
+     things in your own particular-program; but, as soon as you want to apply
+     them in several programs,or you want to enable others to use them, or you
+     have reason to expect that more efficiency may be acquired, then you can go
+     to your implementor and ask him to make the whole set an as efficient as
+     possible extension of the standard-prelude, i.e. 'it 'library-prelude'. In
+     that way an arbitrary number of problem oriented dialects may be defined./
+
+     Lindsey, C.H., & van der Meulen, S.G. (1973).
+     /Informal Introduction to Algol 68/ (Revised Edition, Ch. 0.10.7, p. 52).
+     North Holland Publishing Company.
+#
+
+PR read "each_line.a68" PR
+
+#
+    Particular-program
+
+    Algol 68 pretty printer.
+    Depends on UPPER stropping.
+    Lowercases and bolds reserved words.
+    Italicizes variable names.
+    Generates HTML output.
+#
+
+BEGIN
+
+    #
+        Using a68g, we can get at Linux command line arguments.
+
+        In order to pass arguments to the program, we terminate arguments to a68g
+        itself using the command line option "--".
+
+        Therefore, there are three arguments to be skipped before the program can
+        find its own arguments:
+
+        argv(1) - "a68g"
+        argv(2) - name of the program being interpreted
+        argv(3) - "--" which is necessary to get a68g to leave off interpreting args
+
+        Following those, we can provide a list of one or more Algol 68 files,
+        which appear in argv(4) and onward.
+
+    #
+
+    IF argc < 4 THEN
+
+        print("Usage: a68g pp.a68 -- [source files for pretty printing]")
+
+    ELSE
+
+        #
+            Embed our pretty-printed code in a minimal HTML head-body section
+        #
+
+        print(("<html>",new line));
+        print(("<head>",new line));
+        print(("<title> Algol 68 Pretty Print</title>",new line));
+        print(("<body>",new line));
+
+        #
+            Loop over source files.
+            There is no sophisticated parsing nor error checking here
+        #
+
+        FOR an FROM 4 TO argc DO
+
+            STRING file name = argv(an);
+
+            #
+                If the file is a readable regular file, we attempt to pretty print it
+            #
+
+            IF file is regular(file name) THEN
+
+                print((new line, new line,"<p><strong><em>{ **** ",file name," **** }</em></strong></p>",new line,new line));
+
+                #
+                    There are six "states" that the pretty printer can be in:
+
+                    - commenting (between opening sharp and closing sharp):
+                        do no pretty printing
+                    - stringing (between opening doublequote and closing doublequote):
+                          do no pretty printing
+                    - leadering (processing leading blanks on a line):
+                        replace blanks with &nbsp;, tabs with &nbsp;&nbsp;&nbsp;&nbsp;
+                    - reserved wording (processing upper case words):
+                        lowercase and wrap in &lt;strong&gt;&lt;/strong&gt;
+                    - identitying (processing lower case variable names possibly
+                      including spaces or numerals): 
+                          wrap in &lt;em&gt;&lt;/em&gt;
+                    - other (for example processing numerals, punctuation):
+                        just let the characters through
+
+                    Commenting can be active over more than one line, but other states reset at the beginning of each line.
+                    Each file appears as one HTML paragraph, with line breaks after each line.
+                #
+
+                print("<p>");
+
+                # multiline state resets #
+
+                BOOL commenting := FALSE;
+
+                #
+                    Loop over the lines in the file
+                #
+
+                each line(file name, (STRING line, INT linecount) VOID: BEGIN
+
+                    # individual line state resets #
+
+                    BOOL reserved wording := FALSE;
+                    BOOL identitying := FALSE;
+                    BOOL stringing := FALSE;
+                    BOOL leadering := TRUE;
+
+                    # process the line character-by-character #
+
+                    FOR cn FROM LWB line TO UPB line DO
+                        CHAR c := line[cn];
+
+                        # analyze the current character and change states where necessary #
+
+                        IF c = """" AND NOT commenting THEN
+
+                            # start or end of a string - flip stringing; off reserved wording, identifying, leadering #
+
+                            stringing := NOT stringing;
+
+                            IF reserved wording THEN reserved wording := FALSE; print("</strong>") FI;
+                            IF identitying THEN identitying := FALSE; print("</em>") FI;
+                            leadering := FALSE
+
+                        ELIF c = "#" AND NOT stringing THEN
+
+                            # start or end of a comment - flip commenting; off reserved wording, identifying, leadering #
+
+                            commenting := NOT commenting;
+
+                            IF reserved wording THEN reserved wording := FALSE; print("</strong>") FI;
+                            IF identitying THEN identitying := FALSE; print("</em>") FI;
+                            leadering := FALSE
+
+                        ELIF NOT (commenting OR stringing) THEN
+
+                            IF "A" <= c AND c <= "Z" THEN
+
+                                # reserved wording #
+
+                                IF NOT reserved wording THEN
+
+                                    # start of reserved wording - on reserved wording; off identifying, stringing, commenting, leadering #
+
+                                    reserved wording := TRUE; print("<strong>");
+
+                                    IF identitying THEN identitying := FALSE; print("</em>") FI;
+                                    leadering := FALSE
+                                FI;
+
+                                # translate to lower case #
+
+                                c := REPR (ABS c - ABS "A" + ABS "a")
+
+                            ELIF "a" <= c AND c <= "z" THEN
+
+                                # identifying #
+
+                                IF NOT identitying THEN
+
+                                    # start of identifying - on identifying; off reserved wording, stringing, commenting, leadering #
+
+                                    identitying := TRUE; print("<em>");
+
+                                    IF reserved wording THEN reserved wording := FALSE; print("</strong>") FI;
+                                    leadering := FALSE
+                                FI
+
+                                # don't mess with the character #
+
+                            ELIF ABS c = 9 OR c = " " THEN
+
+                                # leadering, space within an identity or just a space - off reserved wording #
+
+                                IF reserved wording THEN reserved wording := FALSE; print("</strong>") FI
+
+                            ELIF "0" <= c AND c <= "9" THEN
+
+                                # continuation of an identity or just a numeral - off reserved wording, leadering #
+
+                                IF reserved wording THEN reserved wording := FALSE; print("</strong>") FI;
+                                leadering := FALSE
+
+                            ELSE
+
+                                # something else, e.g. punctuation - off reserved wording, identitying and leadering #
+
+                                IF reserved wording THEN print("</strong>"); reserved wording := FALSE FI;
+                                IF identitying THEN print("</em>"); identitying := FALSE FI;
+                                leadering := FALSE
+
+                            FI
+                        FI;
+
+                        # emit the current character (or its surrogate) #
+
+                        IF leadering AND c = " " THEN
+                            print("&nbsp;")
+                        ELIF leadering AND ABS c = 9 THEN
+                            print("&nbsp;&nbsp;&nbsp;&nbsp;")
+                        ELIF c = "<" THEN
+                            print("&lt;")
+                        ELIF c = ">" THEN
+                            print("&gt;")
+                        ELSE
+                            print(c)
+                        FI
+                    OD;
+
+                    # end of line - off reserved wording, identifying; print line break #
+
+                    IF reserved wording THEN print("</strong>"); reserved wording := FALSE FI;
+                    IF identitying THEN print("</em>"); identitying := FALSE FI;
+                    print(("<br />",new line))
+
+                END);
+
+                #
+                    That's it for this file, close off the HTML paragraph
+                #
+
+                print(("</p>",new line))
+
+            ELSE
+
+                #
+                    Oops - not a regular file
+                #
+
+                print((new line, new line,"<p><strong><em>{ **** ",file name," **** is not a regular file - skipping }</em></strong></p>",new line,new line))
+
+            FI
+        OD;
+
+        #
+            Emit HTML postamble
+        #
+
+        print(("</body>",new line));
+        print(("</html>",new line))
+    FI
+
+END

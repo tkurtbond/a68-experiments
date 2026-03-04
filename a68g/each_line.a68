@@ -1,0 +1,18 @@
+# From https://www.both.org/?p=11114 #
+PROC each line = (STRING input file name, PROC (STRING, INT) VOID l) VOID:
+BEGIN
+    FILE input file;
+    VOID(open(input file, input file name, standinchannel));
+    BOOL fr := FALSE;
+    on logical file end (input file, (REF FILE f) BOOL: fr := TRUE);
+    INT linecount := 0;
+    WHILE
+        STRING line;
+         get(input file,(line, newline));
+         NOT fr
+     DO
+         linecount +:= 1;
+         l(line, linecount)
+     OD;
+     close(input file)
+ END # each line #;
