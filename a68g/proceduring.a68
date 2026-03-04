@@ -1,0 +1,21 @@
+COMMENT
+This is something ginned up after looking at E34 in §0.8.4 on page 41 in my phsyical copy of
+Lindsey & Meulen's "Informal introduction to ALGOL 68", first revised version 1973, which is
+missing completely from the PDF I have of the 1981 reprint of the second completely revised 
+edition of 1977, so that seems like something that got overtaken by events.
+
+BUT, *this* particular example shows passing a lambda to a function that calls it, with a 
+side effect in the lambda.
+
+COMMENT
+
+PROC sig = (PROC REAL f) REAL:
+   (REAL x = f; x);
+BEGIN
+   [1:5] REAL a;
+   a := (1.0, 2.0, 3.0, 4.0, 5.0);
+   INT i := 0;
+   FROM 1 TO 3 DO
+      print (("i: ", i, ", SIGGED: ", sig (REAL: a[i +:= 1]), new line))
+   OD
+END
