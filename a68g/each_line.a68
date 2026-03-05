@@ -1,4 +1,4 @@
-# From https://www.both.org/?p=11114 #
+# From: https://www.both.org/?p=11114 #
 PROC each line = (STRING input file name, PROC (STRING, INT) VOID l) VOID:
 BEGIN
     FILE input file;
@@ -15,4 +15,4 @@ BEGIN
          l(line, linecount)
      OD;
      close(input file)
- END # each line #;
+END # each line #;
