@@ -1,6 +1,0 @@
-(BITS t;
- t := 2r1011100100001;
- print ((t, ABS t, newline));
- t := BIN 5921;
- print ((t, newline))
- )

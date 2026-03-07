@@ -1,0 +1,23 @@
+(BITS t := 2r1011100100001;
+INT i := ABS t;
+ print (("t: ", t, " i: ", i, newline));
+ t := BIN 5921;
+ print (("t: ", t, newline));
+ t := NOT t;
+ print (("t: ", t, newline));
+ t := BIN 5921;
+ t := t AND 2r111111;
+ print (("t: ", t, " ABS t: ", ABS t, newline));
+ t := 2r10101;
+ t := t XOR 2r01010;
+ print (("t: ", t, " ABS t: ", ABS t, newline));
+ t := 2r10101;
+ t := t XOR 2r10101;
+ print (("t: ", t, " ABS t: ", ABS t, newline));
+ t := 2r10101;
+ t := t AND 2r01010;;
+ print (("t: ", t, " ABS t: ", ABS t, newline));
+ t := 2r10101;
+ t := t OR 2r01010;
+ print (("t: ", t, " ABS t: ", ABS t, newline));
+ )
